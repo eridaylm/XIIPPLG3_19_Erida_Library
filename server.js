@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const userRoutes = require('./routes/userRoutes');
+const categoriesRoutes = require('./controllers/categories');
 const sequelize = require('./config/db');
 
 require('dotenv').config();
@@ -12,10 +13,11 @@ app.use(bodyParser.json());
 
 // Routes
 app.use('/api', userRoutes);
+app.use('/kategori', categoriesRoutes);
 
 // Sync Database
 sequelize.sync()
-    .then(() => console.log('Database & tables created!'))
+    // .then(() => console.log('Database & tables created!'))
     .catch(err => console.error('Database sync error:', err));
 
 const PORT = process.env.PORT || 5000;
