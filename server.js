@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const userRoutes = require('./routes/userRoutes');
 const categoriesRoutes = require('./controllers/categories');
 const bookRouter = require('./controllers/book');
+const loansRoutes = require('./routes/loans');
 const sequelize = require('./config/db');
 
 require('dotenv').config();
@@ -16,6 +17,7 @@ app.use(bodyParser.json());
 app.use('/api', userRoutes);
 app.use('/kategori', categoriesRoutes);
 app.use('/books', bookRouter);
+app.use('/loans', loansRoutes);
 
 
 // Sync Database
