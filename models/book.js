@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 
-const Book = sequelize.define("book", {
+const Book = sequelize.define('book', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -32,7 +32,7 @@ const Book = sequelize.define("book", {
         allowNull: false
     }
 }, {
-    tableName: "book",
+    tableName: 'book',
     timestamps: false
 });
 

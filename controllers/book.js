@@ -1,114 +1,132 @@
-const Bookmodel = require('../models/book')
+const express = require('express');
+const router = express.Router();
+const Book = require('../models/book');
 
-const getindex = async (req, res) => {
+// GET all books
+router.get('/', async (req, res) => {
     try {
-        const [data] = await Bookmodel.getindex();
-        res.json({
-            message: 'GET all users success',
-            data: data
-        })
-    } catch (error) {
-        res.status(500).json({
-            message: 'Server Error',
-            serverMessage: error,
-        })
-    }
-}
-
-const createnew = async (req, res) => {
-    const { body } = req;
-    try {
-        await Bookmodel.createnew(body);
-        res.json({
-            message: 'CREATE new book',
-            data: body
-        })
-    } catch (error) {
-        res.status(500).json({
-            message: 'Server Error',
-            serverMessage: error,
-        })
-    }
-}
-
-const updateUser = async (req, res) => {
-    const { id } = req.params;
-    const { body } = req;
-    try {
-        await Bookmodel.updateUser(body, id);
-        res.json({
-            message: 'UPDATE berhasil',
-            data: body,
-        })
-    } catch (error) {
-        res.status(500).json({
-            message: 'Server Error',
-            serverMessage: error,
-        })
-    }
-}
-
-
-const deleteUser = async (req, res) => {
-    const { id } = req.params;
-
-    try {
-        // Panggil fungsi deleteUser dari model
-        const [result] = await Bookmodel.deleteUser(id);
-
-
-        res.json({
-            message: 'DELETE user success',
-            data: null
+        const books = await Book.findAll();
+        res.status(200).json({
+            message: 'GET all books success',
+            data: books
         });
-
     } catch (error) {
-        res.status(500).json({
-            message: 'Server Error',
-            serverMessage: error.message, // Menampilkan pesan error lebih jelas
-        });
-    }
-  
-  }
-
- 
-const getByid = async (req, res) => {
-    const { id } = req.params; // Ambil ID dari URL parameter
-
-    // Debugging untuk cek apakah ID terbaca
-    console.log("ID dari req.params:", id);
-
-    try {
-        if (!id) {
-            return res.status(400).json({ message: "ID tidak ditemukan dalam request" });
-        }
-
-        const [data] = await Bookmodel.getByid(id); // Panggil model dengan nama yang sesuai
-
-        if (data.length === 0) {
-            return res.status(404).json({ message: 'Book not found' });
-        }
-
-        res.json({
-            message: 'GET book by ID success',
-            data: data[0]
-        });
-
-    } catch (error) {
-        console.error("Error saat getByid:", error);
         res.status(500).json({
             message: 'Server Error',
             serverMessage: error.message
         });
     }
-}
+});
 
+// GET book by ID
+router.get('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const book = await Book.findByPk(id);
+        
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
 
+        res.status(200).json({
+            message: 'GET book by ID success',
+            data: book
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server Error',
+            serverMessage: error.message
+        });
+    }
+});
 
-module.exports = {
-    getindex,
-    createnew,
-    updateUser,
-    deleteUser,
-    getByid,
-}
+// POST create new book
+router.post('/', async (req, res) => {
+    try {
+        const { title, writer, publisher, year, user_id, category_id } = req.body;
+        
+        // Validate required fields
+        if (!title || !writer || !publisher || !year || !user_id || !category_id) {
+            return res.status(400).json({ 
+                message: 'All fields (title, writer, publisher, year, user_id, category_id) are required' 
+            });
+        }
+
+        const newBook = await Book.create({
+            title,
+            writer,
+            publisher,
+            year,
+            user_id,
+            category_id
+        });
+
+        res.status(201).json({
+            message: 'CREATE new book success',
+            data: newBook
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server Error',
+            serverMessage: error.message
+        });
+    }
+});
+
+// PUT update book
+router.put('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, writer, publisher, year, user_id, category_id } = req.body;
+
+        const book = await Book.findByPk(id);
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+
+        await book.update({
+            title: title || book.title,
+            writer: writer || book.writer,
+            publisher: publisher || book.publisher,
+            year: year || book.year,
+            user_id: user_id || book.user_id,
+            category_id: category_id || book.category_id
+        });
+
+        res.status(200).json({
+            message: 'UPDATE book success',
+            data: book
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server Error',
+            serverMessage: error.message
+        });
+    }
+});
+
+// DELETE book
+router.delete('/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        
+        const book = await Book.findByPk(id);
+        if (!book) {
+            return res.status(404).json({ message: 'Book not found' });
+        }
+
+        await book.destroy();
+        
+        res.status(200).json({
+            message: 'DELETE book success',
+            data: null
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: 'Server Error',
+            serverMessage: error.message
+        });
+    }
+});
+
+module.exports = router;

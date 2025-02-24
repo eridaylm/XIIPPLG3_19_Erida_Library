@@ -1,20 +1,20 @@
 const express = require('express');
 const router = express.Router();
-const bookController = require('../controllers/book');
+const {getindex, getByid, createnew, updateUser, deleteUser} = require('../controllers/book');
 
 // GET semua buku
-router.get('/', bookController.getindex);
+router.get('/book', getindex);
 
 // GET buku berdasarkan ID
-router.get('/:id', bookController.getByid);
+router.get('/book/:id',getByid);
 
 // POST buku baru
-router.post('/', bookController.createnew);
+router.post('/book', createnew);
 
 // PUT update buku berdasarkan ID
-router.put('/:id', bookController.updateUser);
+router.put('/book/:id', updateUser);
 
 // DELETE buku berdasarkan ID
-router.delete('/:id', bookController.deleteUser);
+router.delete('/book/:id', deleteUser);
 
 module.exports = router;
